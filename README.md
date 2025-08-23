@@ -2,6 +2,8 @@
 
 A simple Python desktop app to convert between **Roman numerals** and **decimal numbers**. Built with Tkinter.
 
+![App Screenshot](SPQR_sign.png)
+
 ---
 
 ## Features
