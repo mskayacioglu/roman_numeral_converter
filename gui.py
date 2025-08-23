@@ -163,7 +163,8 @@ class RomanConverterApp(tk.Frame):
         if text == "":
             self._set_decimal("")
             return
-
+        
+        # Normalize to uppercase without moving the cursor
         upper = text.upper()
         if text != upper:
             try:
@@ -176,11 +177,13 @@ class RomanConverterApp(tk.Frame):
             if idx is not None:
                 self.entry_roman.icursor(idx)
 
+        # Convert or warn
         try:
             value = roman_to_int(upper)
             self._set_decimal(str(value))
         except Exception:
-            self._set_decimal("")
+            # Non-empty but invalid Roman → warn in DECIMAL box
+            self._set_decimal("Invalid Roman numeral")
 
     def _on_decimal_change(self, *_):
         if self._updating_from == "roman":
@@ -189,11 +192,15 @@ class RomanConverterApp(tk.Frame):
         if not s:
             self._set_roman("")
             return
+        
         try:
-            n = int(s)
+            n = int(s)  # validator ensures digits for user input
             self._set_roman(int_to_roman(n))
         except Exception:
-            self._set_roman("")
+            # Out of range (or not convertible) → warn in ROMAN box
+            # e.g., 0 or > 3999
+            self._set_roman("Out of range (1–3999)")
+
 
     # -------------------------
     # Helpers

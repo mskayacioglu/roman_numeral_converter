@@ -1,3 +1,4 @@
+# main.py
 import tkinter as tk
 from gui import RomanConverterApp
 
@@ -20,6 +21,5 @@ if __name__ == "__main__":
     main()
 
 # TODO
-# Error handling Roman Range and This is not a roman number
 # Report
 # Readme
