@@ -108,11 +108,15 @@ class RomanConverterApp(tk.Frame):
     # -------------------------
     def _validate_roman(self, proposed: str) -> bool:
         # Only allow I,V,X,L,C,D,M (upper/lower). Uppercasing is done in trace.
-        return proposed == "" or all(ch in "IVXLCDMivxlcdm" for ch in proposed)
+        if proposed == "":
+                return True  # delete/backspace ile boş bırakmaya izin ver
+        return all(ch in "IVXLCDMivxlcdm" for ch in proposed)
 
     def _validate_decimal(self, proposed: str) -> bool:
         # Only digits 0-9
-        return proposed.isdigit() or proposed == ""
+        if proposed == "":
+                return True
+        return proposed.isdigit()
 
     # -------------------------
     # Banner
