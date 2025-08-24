@@ -7,6 +7,12 @@ from converter import int_to_roman, roman_to_int
 MAROON = "#7d0000"
 GOLD = "#d4af37"
 
+def center_window(window, width=600, height=400):
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width // 2) - (width // 2) + 100
+    y = (screen_height // 2) - (height // 2)
+    window.geometry(f"{width}x{height}+{x}+{y}")
 
 class RomanConverterApp(tk.Frame):
     def __init__(self, master):

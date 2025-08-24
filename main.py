@@ -1,10 +1,11 @@
 # main.py
 import tkinter as tk
-from gui import RomanConverterApp
+from gui import RomanConverterApp, center_window
 
 def main():
     root = tk.Tk()
     root.title("Roman Numeral Converter")
+    center_window(root, 600, 400)
 
     root.geometry("400x300")
     root.minsize(400, 300)
