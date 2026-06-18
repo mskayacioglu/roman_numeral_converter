@@ -6,11 +6,13 @@ from converter import int_to_roman, roman_to_int
 
 MAROON = "#7d0000"
 GOLD = "#d4af37"
+MAX_ROMAN_LENGTH = 15
+MAX_DECIMAL_LENGTH = 4
 
 def center_window(window, width=600, height=400):
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
-    x = (screen_width // 2) - (width // 2) + 100
+    x = (screen_width // 2) - (width // 2)
     y = (screen_height // 2) - (height // 2)
     window.geometry(f"{width}x{height}+{x}+{y}")
 
@@ -33,6 +35,7 @@ class RomanConverterApp(tk.Frame):
         # Vars & guards
         self.var_roman = tk.StringVar()
         self.var_decimal = tk.StringVar()
+        self.var_status = tk.StringVar()
         self._updating_from = None
         self._normalizing_roman = False  # prevent recursive trace during uppercase normalize
 
@@ -103,6 +106,18 @@ class RomanConverterApp(tk.Frame):
         )
         self.entry_decimal.grid(row=1, column=1, pady=8)
 
+        self.status_label = tk.Label(
+            inputs,
+            textvariable=self.var_status,
+            font=self.entry_font,
+            fg=GOLD,
+            bg=MAROON,
+            wraplength=360,
+        )
+        self.status_label.grid(
+            row=2, column=0, columnspan=2, padx=8, pady=(8, 0)
+        )
+
         # Traces
         self.var_roman.trace_add("write", self._on_roman_change)
         self.var_decimal.trace_add("write", self._on_decimal_change)
@@ -114,15 +129,15 @@ class RomanConverterApp(tk.Frame):
     # -------------------------
     def _validate_roman(self, proposed: str) -> bool:
         # Only allow I,V,X,L,C,D,M (upper/lower). Uppercasing is done in trace.
-        if proposed == "":
-                return True  # delete/backspace ile boş bırakmaya izin ver
-        return all(ch in "IVXLCDMivxlcdm" for ch in proposed)
+        return len(proposed) <= MAX_ROMAN_LENGTH and all(
+            ch in "IVXLCDMivxlcdm" for ch in proposed
+        )
 
     def _validate_decimal(self, proposed: str) -> bool:
-        # Only digits 0-9
-        if proposed == "":
-                return True
-        return proposed.isdigit()
+        # str.isdigit() also accepts characters such as ²; accept ASCII digits only.
+        return len(proposed) <= MAX_DECIMAL_LENGTH and all(
+            ch in "0123456789" for ch in proposed
+        )
 
     # -------------------------
     # Banner
@@ -168,6 +183,7 @@ class RomanConverterApp(tk.Frame):
         text = self.var_roman.get()
         if text == "":
             self._set_decimal("")
+            self._set_status("")
             return
         
         # Normalize to uppercase without moving the cursor
@@ -187,9 +203,10 @@ class RomanConverterApp(tk.Frame):
         try:
             value = roman_to_int(upper)
             self._set_decimal(str(value))
-        except Exception:
-            # Non-empty but invalid Roman → warn in DECIMAL box
-            self._set_decimal("Invalid Roman numeral")
+            self._set_status("")
+        except ValueError:
+            self._set_decimal("")
+            self._set_status("Invalid Roman numeral")
 
     def _on_decimal_change(self, *_):
         if self._updating_from == "roman":
@@ -197,15 +214,16 @@ class RomanConverterApp(tk.Frame):
         s = self.var_decimal.get().strip()
         if not s:
             self._set_roman("")
+            self._set_status("")
             return
         
         try:
-            n = int(s)  # validator ensures digits for user input
+            n = int(s)
             self._set_roman(int_to_roman(n))
-        except Exception:
-            # Out of range (or not convertible) → warn in ROMAN box
-            # e.g., 0 or > 3999
-            self._set_roman("Out of range (1–3999)")
+            self._set_status("")
+        except ValueError:
+            self._set_roman("")
+            self._set_status("Decimal value must be between 1 and 3999")
 
 
     # -------------------------
@@ -213,10 +231,17 @@ class RomanConverterApp(tk.Frame):
     # -------------------------
     def _set_roman(self, val: str):
         self._updating_from = "decimal"
-        self.var_roman.set(val)
-        self._updating_from = None
+        try:
+            self.var_roman.set(val)
+        finally:
+            self._updating_from = None
 
     def _set_decimal(self, val: str):
         self._updating_from = "roman"
-        self.var_decimal.set(val)
-        self._updating_from = None
+        try:
+            self.var_decimal.set(val)
+        finally:
+            self._updating_from = None
+
+    def _set_status(self, val: str):
+        self.var_status.set(val)

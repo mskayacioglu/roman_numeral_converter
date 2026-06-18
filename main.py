@@ -6,8 +6,6 @@ def main():
     root = tk.Tk()
     root.title("Roman Numeral Converter")
     center_window(root, 600, 400)
-
-    root.geometry("400x300")
     root.minsize(400, 300)
 
     root.rowconfigure(0, weight=1)
@@ -20,6 +18,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# TODO
-# Report

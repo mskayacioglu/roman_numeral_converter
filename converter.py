@@ -2,12 +2,10 @@
 import re
 
 _ROMAN_RE = re.compile(r"""
-    ^
     M{0,3}
     (CM|CD|D?C{0,3})
     (XC|XL|L?X{0,3})
     (IX|IV|V?I{0,3})
-    $
 """, re.VERBOSE)
 
 _ROMAN_TABLE = [
@@ -17,6 +15,8 @@ _ROMAN_TABLE = [
 ]
 
 def int_to_roman(n: int) -> str:
+    if isinstance(n, bool) or not isinstance(n, int):
+        raise TypeError("Decimal value must be an integer")
     if not (1 <= n <= 3999):
         raise ValueError("Decimal value out of range (1–3999)")
     result = []
@@ -27,10 +27,12 @@ def int_to_roman(n: int) -> str:
     return "".join(result)
 
 def roman_to_int(s: str) -> int:
+    if not isinstance(s, str):
+        raise TypeError("Roman numeral must be a string")
     if not s:
         raise ValueError("Empty Roman numeral")
     s = s.upper()
-    if not _ROMAN_RE.match(s):
+    if not _ROMAN_RE.fullmatch(s):
         raise ValueError("Invalid Roman numeral")
     i, total = 0, 0
     for val, sym in _ROMAN_TABLE:
